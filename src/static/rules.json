@@ -1,0 +1,24 @@
+    [{
+        "id": 89878,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "initiatorDomains": [
+                "emptyrandompagelololol.com"
+            ]
+        }
+    },
+  {
+        "id": 656765,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "initiatorDomains": [
+                "emptyrandompagelololol2.com"
+            ]
+        }
+    }]

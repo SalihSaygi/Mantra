@@ -1,0 +1,254 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { addExceptionRule, addRedirectRule } from '../../utils/rules';
+import { blockedURL, Category as CategoryI, getStoredCategories, getStoredURL, setStoredCategories, setStoredURL } from '../../utils/storage';
+// import NotesList from '../Notes/components/NotesList';
+// import useQuery from '../useQuery';
+// import Category from './components/Category';
+import CategoryList from './components/CategoryList';
+import DeleteConfirmModal from './components/DeleteConfirmModal';
+import Header from './components/Header';
+
+const Categories = () => {
+  console.log("aloo3")
+  // const query = useQuery();
+  // const queryParams = query.get('categories');
+  // let queryCategories;
+  // if (queryParams) {
+  //   queryCategories = queryParams.split('-');
+  // }
+  // const savedCategories = JSON.parse(
+  //   localStorage.getItem('mantra-app-category')
+  // );
+
+  // let matchedCategories;
+  // if (queryCategories && queryCategories.length > 1) {
+  //   console.log('more than one category in query');
+
+  //   matchedCategories = queryCategories.filter(
+  //     q => !savedCategories.some(category => category.name === q)
+  //   );
+  // } else if (queryCategories && queryCategories.length === 1) {
+  //   console.log('only one category in query');
+  //   matchedCategories = savedCategories.some(el => {
+  //     if (el.name === queryCategories) return el.name;
+  //   });
+  // } else {
+  //   console.log('no category in query');
+  //   matchedCategories = savedCategories;
+  // }
+
+  const [categories, setCategories] = useState([]);
+  const [links, setLinks] = useState([]);
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    let savedCategories: CategoryI[]
+    getStoredCategories().then((storedCategories) => {
+      savedCategories = storedCategories
+      console.log(savedCategories, 'savedCategories');
+      if (Array.isArray(savedCategories)) {
+        console.log('check', savedCategories);
+        setCategories(savedCategories);
+      }
+    })
+
+  }, []);
+
+  useEffect(() => {
+    let savedLinks: blockedURL[]
+    getStoredURL().then((storedURL) => {
+      savedLinks = storedURL
+      console.log(savedLinks, 'savedLinks');
+      if (Array.isArray(savedLinks)) {
+        console.log('check');
+        setLinks(savedLinks);
+      }
+    })
+  }, []);
+
+  const [categoryField, setCategoryField] = useState('');
+  const [categoryTitle, setCategoryTitle] = useState('');
+
+  useEffect(() => {
+    if (categoryField) {
+      setCategoryTitle(categoryField);
+    }
+  }, [categoryField]);
+
+  function createNewCategory(e) {
+    e.preventDefault();
+    const newCategory = {
+      title: categoryTitle,
+      links: [],
+    };
+    console.log(newCategory, 'newCategory');
+    setCategoryField('');
+    setCategories(prevCategories => [...prevCategories, newCategory]);
+  }
+
+  useEffect(() => {
+    setStoredCategories(categories)
+  }, [categories]);
+
+  useEffect(() => {
+    // localStorage.setItem('mantra-app-links', JSON.stringify(links));
+
+    //this hugely needs error checks
+    links.forEach(url => url.blockedLinks.forEach(blockedLink => {
+      addRedirectRule(blockedLink, categories).then(() => {
+        if(url.exceptionLinks) {
+          url.exceptionLinks.forEach(link => {
+            addExceptionRule(link)
+          })
+        }
+        setStoredURL(links)
+      })
+  }))
+  }, [links]);
+
+  const [deleteConfirmModalCategory, setDeleteConfirmModalCategory] = useState({
+    show: false,
+    id: null,
+  });
+
+  function handleDeleteCategory(id) {
+    setDeleteConfirmModalCategory({
+      show: true,
+      id,
+    });
+  }
+
+  function handleDeleteTrueCategory() {
+    console.log('confirm');
+    if (deleteConfirmModalCategory.show && deleteConfirmModalCategory.id) {
+      let filteredData = categories.filter(
+        category => category.title !== deleteConfirmModalCategory.id
+      );
+      console.log(filteredData, 'filteredData');
+      setCategories(filteredData);
+      setDeleteConfirmModalCategory({
+        show: false,
+        id: null,
+      });
+    }
+  }
+
+  const handleDeleteFalseCategory = () => {
+    setDeleteConfirmModalCategory({
+      show: false,
+      id: null,
+    });
+  };
+
+  const [deleteConfirmModalLink, setDeleteConfirmModalLink] = useState({
+    show: false,
+    id: null,
+  });
+
+  function handleDeleteLink(id) {
+    setDeleteConfirmModalLink({
+      show: true,
+      id,
+    });
+  }
+
+  function linkCategoryChaining() {
+    let linkID;
+    let filteredLinks = [];
+    for (let i = 0; i < links.length; i++) {
+      if (links[i].blockedLinks[0] !== deleteConfirmModalLink.id) {
+        filteredLinks.push(links[i]);
+      } else if (links[i].blockedLinks[0] === deleteConfirmModalLink.id) {
+        linkID = links[i].id;
+      }
+    }
+    let filteredCategories = [];
+    for (let j = 0; j < categories.length; j++) {
+      if (categories[j].links.includes(linkID)) {
+        let selectedCategory = categories[j];
+        const newLinksOfCategory = selectedCategory.links.filter(
+          e => e !== linkID
+        );
+        selectedCategory.links = newLinksOfCategory;
+        console.log(selectedCategory, 'newCategory');
+        filteredCategories.push(selectedCategory);
+      }
+    }
+    console.log(
+      linkID,
+      'linkID',
+      deleteConfirmModalLink,
+      'deleteConfirmModalCategory',
+      links,
+      'links',
+      categories,
+      'categories'
+    );
+    return { filteredLinks, filteredCategories };
+  }
+
+  function handleDeleteTrueLink() {
+    let { filteredCategories, filteredLinks } = linkCategoryChaining();
+    console.log(filteredCategories, filteredLinks);
+    setCategories(filteredCategories);
+    setDeleteConfirmModalLink({
+      show: false,
+      id: null,
+    });
+    setLinks(filteredLinks);
+  }
+
+  const handleDeleteFalseLink = () => {
+    setDeleteConfirmModalLink({
+      show: false,
+      id: null,
+    });
+  };
+
+  return (
+    <div className={`${darkMode && 'dark-mode'}`}>
+      <div className="container">
+        <Header handleToggleDarkMode={setDarkMode} />
+        <Link to="/notes">Notes</Link>
+
+        {categories && categories.length ? (
+          <CategoryList
+            categories={categories}
+            stateLinks={links}
+            setLinks={setLinks}
+            setCategories={setCategories}
+            handleDeleteCategory={handleDeleteCategory}
+            handleDeleteLink={handleDeleteLink}
+          />
+        ) : (
+          <p>No Categories</p>
+        )}
+        <form onSubmit={createNewCategory}>
+          <input
+            type="text"
+            placeholder="Strawberry"
+            value={categoryField}
+            onChange={e => setCategoryField(e.target.value)} //it was onInput, if this line causes troubles, go back to it
+          />
+          <button>New Category</button>
+        </form>
+      </div>
+      {deleteConfirmModalCategory.show && (
+        <DeleteConfirmModal
+          handleDeleteTrue={handleDeleteTrueCategory}
+          handleDeleteFalse={handleDeleteFalseCategory}
+        />
+      )}
+      {deleteConfirmModalLink.show && (
+        <DeleteConfirmModal
+          handleDeleteTrue={handleDeleteTrueLink}
+          handleDeleteFalse={handleDeleteFalseLink}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Categories;

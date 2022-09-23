@@ -82,9 +82,9 @@ const LinkModal = ({
         setLinks([newLink]);
       }
 
-      let updatedCategories = categories.map(categoryData => {
+      const updatedCategories = categories.map(categoryData => {
         console.log('alo1', categoryData);
-        let idk = categoryButtons.map(title => {
+        const idk = categoryButtons.map(title => {
           //
           let temp;
           if (categoryData.title === title) {
@@ -104,12 +104,8 @@ const LinkModal = ({
             return categoryData;
           }
         });
-        idk = idk.filter(x => x !== undefined);
         console.log('idk', idk);
         return idk[0];
-      });
-      updatedCategories = updatedCategories.filter(function (element) {
-        return element !== undefined;
       });
       console.log(updatedCategories, 'updatedCategories');
       setBlockedLink(['', '']);

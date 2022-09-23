@@ -43,6 +43,7 @@ const Categories = () => {
 
   const [darkMode, setDarkMode] = useState(false);
 
+  //this is for initializing the categories from localStorage
   useEffect(() => {
     let savedCategories: CategoryI[]
     getStoredCategories().then((storedCategories) => {
@@ -56,6 +57,7 @@ const Categories = () => {
 
   }, []);
 
+  //this is for initializing the blockedURLs from localStorage
   useEffect(() => {
     let savedLinks: blockedURL[]
     getStoredURL().then((storedURL) => {
@@ -68,7 +70,10 @@ const Categories = () => {
     })
   }, []);
 
+  //this is to control input element
   const [categoryField, setCategoryField] = useState('');
+
+  //this is the property of the category
   const [categoryTitle, setCategoryTitle] = useState('');
 
   useEffect(() => {
@@ -88,26 +93,32 @@ const Categories = () => {
     setCategories(prevCategories => [...prevCategories, newCategory]);
   }
 
+  //when the category state changes, store it to localStorage
   useEffect(() => {
     setStoredCategories(categories)
   }, [categories]);
 
+  //this is for updating the rules.json file to block urls
   useEffect(() => {
-    // localStorage.setItem('mantra-app-links', JSON.stringify(links));
-
     //this hugely needs error checks
+    console.log('addRedirectionRule', links)
     links.forEach(url => url.blockedLinks.forEach(blockedLink => {
+      console.log(blockedLink, "blockedLink-addRedirectionRule")
       addRedirectRule(blockedLink, categories).then(() => {
         if(url.exceptionLinks) {
           url.exceptionLinks.forEach(link => {
+            console.log('link-addRedirectionRule', link)
             addExceptionRule(link)
           })
         }
+                    console.log('setStoredURL-addRedirectionRule', links)
+
         setStoredURL(links)
       })
   }))
   }, [links]);
 
+  //this is for modals
   const [deleteConfirmModalCategory, setDeleteConfirmModalCategory] = useState({
     show: false,
     id: null,
@@ -120,6 +131,8 @@ const Categories = () => {
     });
   }
 
+  //it searches through categories using the id of the category 
+  //and removes the matched category and then closes the modal
   function handleDeleteTrueCategory() {
     console.log('confirm');
     if (deleteConfirmModalCategory.show && deleteConfirmModalCategory.id) {
@@ -154,6 +167,8 @@ const Categories = () => {
     });
   }
 
+  //this function is only used for deleting links 
+  //from categories's links property and then itself from localStorage
   function linkCategoryChaining() {
     let linkID;
     let filteredLinks = [];

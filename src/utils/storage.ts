@@ -36,7 +36,6 @@ interface Block {
 
 export interface Editor {
   id: string,
-  time: number,
   blocks: Array<Block>
 }
 

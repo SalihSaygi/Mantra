@@ -53,11 +53,48 @@ const DEFAULT_INITIAL_NOTE_DATA = (id) => {
 
 const EDITTOR_HOLDER_ID = 'editorjs';
 
-const EditorComponent = ({noteData, setNoteData, editorData, setEditorData, viewEditorData, setViewEditorData, setIsFirst}) => {
+const EditorComponent = () => {
   const { id } = useParams();
   const ejInstance = useRef<EditorJS>();
-  const [currentEditorData ,setCurrentEditorData] = useState<OutputData>()
   const [editorInstance, setEditorInstance] = useState<EditorJS>()
+  const [noteData, setNoteData] = useState<Note[]>();
+  const [editorData, setEditorData] = useState<Editor[]>();
+  const [viewEditorData, setViewEditorData] = useState<Editor>();
+      
+  async function localSetNotes() {
+    chrome.storage.local.set({"notes": noteData})
+  }
+  useEffect(() => {
+    console.log(noteData, "noteData in Editor");
+    if (noteData) {
+          console.log(noteData, "noteData in Editor2");
+
+
+      localSetNotes().then(() => {
+                console.log('localSetNotes Done', noteData)
+      })
+    }
+  }, [noteData]);
+
+  async function localSetEditor() {
+    chrome.storage.local.set({"editor": editorData})
+  }
+  useEffect(() => {
+    console.log(editorData, "editorData in Editor");
+    if (editorData) {
+          console.log(editorData, "editorData in Editor2");
+
+      localSetEditor().then(() => {
+        console.log('localSetEditor Done', editorData)
+        const selectedEditorData = editorData.find(data => {
+          if(data.id === id) {
+            return data
+          }
+        })
+        setViewEditorData(selectedEditorData)
+      })
+    }
+  }, [editorData]);
 
   function getNotes() {
         console.log(id, "IDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd")
@@ -71,22 +108,11 @@ const EditorComponent = ({noteData, setNoteData, editorData, setEditorData, view
             savedNote => savedNote.id === String(id)
           );
           console.log(note, 'note', note === undefined);
-          if (note === undefined || note.length !== 0) {
-            //check if array not empty
+          if (note.length) {
             console.log('alo1');
-            setIsFirst(false)
-            let savedNotes
-            chrome.storage.local.get(['notes'], (noteResult) => {
-              savedNotes = noteResult.notes ?? []
-              setNoteData(savedNotes);
-              setEditorData(savedEditorData);
-            })
-
+            setViewEditorData(note[0])
           } else {
-                        console.log("I AM A PUSSY")
-
-
-            setIsFirst(false)
+            console.log("I AM A PUSSY")
             let savedNotes: Array<Note>
             chrome.storage.local.get(['notes'], (notesResult) => {
               savedNotes = notesResult.notes ?? []
@@ -96,18 +122,15 @@ const EditorComponent = ({noteData, setNoteData, editorData, setEditorData, view
                 DEFAULT_INITIAL_EDITOR_DATA(id),
               ]);
             })
-
           }
           console.log('alo2');
         } else if (savedEditorData && savedEditorData.length === 1) {
           let savedNotes
-          setIsFirst(true)
           console.log(savedEditorData, 'savedEditorData')
           if (savedEditorData[0].id === id) {
             console.log('noteDIR');
-            setEditorData(savedEditorData);
+            setViewEditorData(savedEditorData[0])
           } else {
-            setIsFirst(false)
             chrome.storage.local.get(['notes'], (noteResult) => {
               savedNotes = noteResult.notes ?? []
               console.log('one item', savedNotes, id);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Note = ({ id, title, content, category, date }) => {
+const Note = ({ id, title, content, category }) => {
   const navigate = useNavigate();
 
   const handleOpenEditor = () => {
@@ -19,7 +19,6 @@ const Note = ({ id, title, content, category, date }) => {
         <p className="content">{content.substring(0, 100)}</p>
       </div>
       <div className="note-footer">
-        <small>{date}</small>
       </div>
     </div>
   );

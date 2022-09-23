@@ -43,7 +43,6 @@ const LinkButton = ({
           setBlockedLink(links[i].blockedLinks);
           setExceptionLinks(links[i].exceptionLinks);
           setCategoryButtons(links[i].categories);
-          break;
         }
       }
     }
@@ -89,26 +88,27 @@ const LinkButton = ({
     const id = nanoid();
     e.preventDefault();
     if (categoryButtons) {
-      const newLink = {
-        id: id,
-        blockedLinks: blockedLink,
-        exceptionLinks: exceptionLinks,
-        categories: categoryButtons,
-      };
-      console.log('newLink', newLink);
       if (links && links.length) {
-        console.log('links', links);
+
         let updatedLinks = [];
-        links.forEach(selectedLink => {
-          if (selectedLink.blockedLinks[0] !== link) {
-            updatedLinks.push(selectedLink);
+        links.forEach(selectedLinks => {
+          if(selectedLinks.blockedLinks[0] == link) {
+            const updatedLink = {
+              id: selectedLinks.id,
+              blockedLinks: blockedLink,
+              exceptionLinks: exceptionLinks,
+              categories: categories
+            }
+            updatedLinks.push(updatedLink);
+          } else if(selectedLinks.blockedLinks[0] !== link) {
+            updatedLinks.push(selectedLinks)
           }
-        });
+        })
         console.log(updatedLinks, 'updatedLinks');
-        setLinks([...updatedLinks, newLink]);
+        setLinks(updatedLinks)
+
       } else {
         console.log('no link');
-        setLinks([newLink]);
       }
 
       let updatedCategories = categories.map(categoryData => {
@@ -134,11 +134,10 @@ const LinkButton = ({
           }
         });
         idk = idk.filter(x => x !== undefined);
-        console.log('idk', idk);
+        console.log('idk', idk[0]);
+                console.log('linkButton')
+
         return idk[0];
-      });
-      updatedCategories = updatedCategories.filter(function (element) {
-        return element !== undefined;
       });
       console.log(updatedCategories, 'updatedCategories');
       setBlockedLink(['', '']);

@@ -11,7 +11,6 @@ const NotesList = ({ notes }) => {
           title={note.title}
           content={note.content}
           category={note.category}
-          date={note.date}
         />
       ))}
     </div>

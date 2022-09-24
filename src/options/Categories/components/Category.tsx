@@ -38,11 +38,12 @@ const Category = ({
         });
         return idk[0];
       });
+      console.log('matchingLinks1', matchingLinks)
       matchingLinks = matchingLinks.filter(function (element) {
         return element !== undefined;
       });
       matchingLinks = [].concat.apply([], matchingLinks);
-      console.log(matchingLinks, 'matchingLinks');
+      console.log(matchingLinks, 'matchingLinks2');
       setLinksData(matchingLinks);
     } else {
       setLinksData([]);
@@ -115,7 +116,6 @@ const Category = ({
           (console.log(linksData, 'linksData2'),
           linksData.map((link, i) => {
             console.log(link, 'wtfWHYYYYYYYY');
-            let id = nanoid();
             return (
               <div onClick={() => handleOpenLinkModal(link)}>
               <LinkButton
@@ -129,7 +129,7 @@ const Category = ({
                 handleOpenLinkModal={handleOpenLinkModal}
                 handleDeleteLink={handleDeleteLink}
                 setLinksData={setLinksData}
-                key={id}
+                key={i}
               />
               </div>
             );

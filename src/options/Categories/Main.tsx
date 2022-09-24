@@ -104,16 +104,21 @@ const Categories = () => {
     console.log('addRedirectionRule', links)
     links.forEach(url => url.blockedLinks.forEach(blockedLink => {
       console.log(blockedLink, "blockedLink-addRedirectionRule")
-      addRedirectRule(blockedLink, categories).then(() => {
-        if(url.exceptionLinks) {
-          url.exceptionLinks.forEach(link => {
-            console.log('link-addRedirectionRule', link)
-            addExceptionRule(link)
+      setStoredURL(links).then(() => {
+        console.log('linksStored')
+        addRedirectRule(blockedLink, categories)
+          .then(() => {
+            if(url.exceptionLinks) {
+              url.exceptionLinks.forEach(link => {
+                console.log('link-addRedirectionRule', link)
+                addExceptionRule(link)
+              })
+            }
+            console.log('setStoredURL-addRedirectionRule', links)
           })
-        }
-                    console.log('setStoredURL-addRedirectionRule', links)
-
-        setStoredURL(links)
+          .catch((e) => {
+            console.log(e, "errAddRedirectRule")
+          })
       })
   }))
   }, [links]);

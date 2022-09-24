@@ -86,7 +86,6 @@ const LinkModal = ({
         console.log('alo1', categoryData);
         const idk = categoryButtons.map(title => {
           //
-          let temp;
           if (categoryData.title === title) {
             let linkIDs = categoryData.links;
             console.log(linkIDs, 'linkIDs');
@@ -97,10 +96,8 @@ const LinkModal = ({
               links: newLinks, //will use this id to lookup the link in local storage
             };
             console.log(newCategory, 'newCategory');
-            temp = newCategory;
             return newCategory;
-          } else if (temp && temp.title !== title) {
-            console.log('alo2', categoryButtons);
+          } else if (categoryData.title !== title) {
             return categoryData;
           }
         });

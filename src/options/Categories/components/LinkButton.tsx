@@ -148,7 +148,6 @@ const LinkButton = ({
   }
   function deleteLink(link) {
     handleDeleteLink(link);
-    setLinksData([link]);
   }
 
   return (

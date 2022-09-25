@@ -18,8 +18,7 @@
   ],
   "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestFeedback",     "tabs",
     "contextMenus",
-    "webRequest",
-    "webRequestBlocking"],
+    "webRequest"],
   "options_page": "options.html",
   "declarative_net_request": {
     "rule_resources": [

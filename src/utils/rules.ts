@@ -1,5 +1,3 @@
-import { nanoid } from "nanoid"
-
     enum RuleActionType {
         BLOCK = "block",
         REDIRECT = "redirect",
@@ -47,43 +45,41 @@ import { nanoid } from "nanoid"
 //   })
 // }
 
-const addRedirectRule = (dirtyURL, categories) => {
+
+const addRedirectRule = (dirtyURL, categories, id) => {
   return new Promise<void>((res, rej) => {
-    if(isNaN(dirtyURL) || isNaN(categories)) {
-        rej("Needed parameters are missing.")
-    }
-    const url = urlSanitizer(dirtyURL)
-
-    let id = nanoid()
-
+    // if(isNaN(dirtyURL) || isNaN(categories)) {
+    //     rej("Needed parameters are missing.")
+    // }
+    // const url = urlSanitizer(dirtyURL)
+ 
     const extensionURL = chrome.runtime.getURL(getCategoryQuery(categories))
-
+    console.log('extensionURL', extensionURL)
     chrome.declarativeNetRequest.updateDynamicRules(
       {addRules:[{
-        "id": Number(id),
+        "id": id,
         "priority": 2,
         "action": { "type": RuleActionType.REDIRECT, "redirect": { "url": extensionURL } },
-        "condition": {"urlFilter": url, "resourceTypes": [ResourceType.MAIN_FRAME] }}
+        "condition": {"urlFilter": dirtyURL, "resourceTypes": [ResourceType.MAIN_FRAME] }}
       ],
-        removeRuleIds: [Number(id)]
+        removeRuleIds: [id]
       })
     res()
   })
 }
 
-const addExceptionRule = (dirtyURL) => {
-  const url = urlSanitizer(dirtyURL)
+const addExceptionRule = (dirtyURL, id) => {
+  // const url = urlSanitizer(dirtyURL)
 
-  let id = nanoid()
 
   chrome.declarativeNetRequest.updateDynamicRules(
     {addRules:[{
-      "id": Number(id),
+      "id": id,
       "priority": 1,
-      "action": { "type": RuleActionType.BLOCK},
-      "condition": {"urlFilter": url, "resourceTypes": [ResourceType.MAIN_FRAME] }}
+      "action": { "type": RuleActionType.ALLOW},
+      "condition": {"urlFilter": dirtyURL, "resourceTypes": [ResourceType.MAIN_FRAME] }}
     ],
-      removeRuleIds: [Number(id)]
+      removeRuleIds: [id]
     })
 }
 
@@ -109,10 +105,11 @@ const urlSanitizer = (dirtyURL) => {
 } 
 
 const getCategoryQuery = (categories) => {
-  let query = `options?categories=${categories[0]}`
-  const categoriesWithoutFirstCategory = categories.shift()
-  categoriesWithoutFirstCategory.forEach(category => {
-   query.concat(`${category}`)
+  console.log(categories, "categories")
+  let query = `options.html#/notes?category=${categories[0]}`
+  categories.shift()
+  categories.forEach(category => {
+   query.concat(`&category=${category}`)
   })
   return query
 }

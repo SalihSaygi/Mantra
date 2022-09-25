@@ -8,6 +8,7 @@ import { blockedURL, Category as CategoryI, getStoredCategories, getStoredURL, s
 import CategoryList from './components/CategoryList';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import Header from './components/Header';
+const { customAlphabet } = require('nanoid')
 
 const Categories = () => {
   console.log("aloo3")
@@ -104,17 +105,20 @@ const Categories = () => {
     console.log('addRedirectionRule', links)
     links.forEach(url => url.blockedLinks.forEach(blockedLink => {
       console.log(blockedLink, "blockedLink-addRedirectionRule")
+      const nanoid = customAlphabet('1234567890', 6)
+      const id = parseInt(nanoid())
       setStoredURL(links).then(() => {
         console.log('linksStored')
-        addRedirectRule(blockedLink, categories)
+        addRedirectRule(blockedLink, url.categories, id)
           .then(() => {
-            if(url.exceptionLinks) {
-              url.exceptionLinks.forEach(link => {
-                console.log('link-addRedirectionRule', link)
-                addExceptionRule(link)
-              })
-            }
-            console.log('setStoredURL-addRedirectionRule', links)
+            // if(url.exceptionLinks) {
+            //   url.exceptionLinks.forEach(link => {
+            //     console.log('link-addRedirectionRule', link)
+            //     addExceptionRule(link, id)
+            //   })
+            // }
+            // console.log('setStoredURL-addRedirectionRule', links)
+            console.log("addRedirectRule Done")
           })
           .catch((e) => {
             console.log(e, "errAddRedirectRule")
